@@ -9,24 +9,32 @@ const Signup = () => {
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("");
 
     const history = useHistory();
 
     const handleSignUp = () => {
         try {
+            if(name.length == 0 || email.length == 0 || password.length == 0) {
+                setMessage("Empty field not allowed");
+                return;
+            }
             const userData = { name: name, email: email, password: password };
             axios.post('/users', userData).then((res) => {
                 console.log(res);
                 if(res.data.error) {
-                    window.alert('Email Id already registered');
+                    setMessage('Email-id already registered');
+                    return;
                 } else {
-                    history.push('/login');
+                    history.push('/');
                 }
             }).catch((err) => {
-                
+                setMessage(err.message);
+                return;
             })
         } catch (err) {
-            console.log(err);
+            setMessage(err.message);
+            return;
         }
     }
 
@@ -82,12 +90,16 @@ const Signup = () => {
                     </Button>
                     <Grid container sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3}}>
                         <Grid item>
-                            <Link href="/login">
+                            <Link href="/">
                                 Already have an account? Sign in
                             </Link>
                         </Grid>
                     </Grid>
                 </Box>
+                { message.length > 0 
+                    ? <Typography variant="h5" component="h5" sx={{mt : 2}}> {message} </Typography>
+                    : <p> </p>
+                }
             </Box>
         </Container>
     );
