@@ -1,40 +1,27 @@
-import { useState } from "react";
-import axios from 'axios';
+import { useContext, useEffect, useState } from "react";
 import { Avatar, Container, Box, Typography, Grid, TextField, Button, Link } from '@mui/material';
 import { LockClockOutlined } from "@mui/icons-material";
 import { useHistory } from "react-router";
+import { AuthContext } from "../../Context/Auth/AuthContext";
 
 const Signup = () => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
-
     const history = useHistory();
 
-    const handleSignUp = () => {
-        try {
-            if(email.length == 0 || password.length == 0) {
-                setMessage("Empty field not allowed");
-                return;
-            }
-            const userData = {email: email, password: password };
-            axios.post('/users/login', userData).then((res) => {
-                console.log(res);
-                if(res.data.error) {
-                    setMessage(res.data.error);
-                    return;
-                } else {
-                    history.push('/tasks');
-                }
-            }).catch((err) => {
-                setMessage(err.message);
-                return;
-            })
-        } catch (err) {
-            setMessage(err.message);
-            return;
-        }
+    let {login, isAuthenticated} = useContext(AuthContext);
+
+
+    useEffect(() => {
+        if(isAuthenticated)
+            history.push('/');
+    }, [isAuthenticated, login]);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        await login({email, password});
     }
 
     return (
@@ -72,10 +59,10 @@ const Signup = () => {
                             />
                         </Grid>
                     </Grid>
-                    <Button variant="contained" sx={{ mt: 3, mb: 2 }} fullWidth onClick={handleSignUp}>
+                    <Button variant="contained" sx={{ mt: 3, mb: 2 }} fullWidth onSubmit={handleLogin}>
                         Sign up
                     </Button>
-                    <Grid container sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3}}>
+                    <Grid container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 3 }}>
                         <Grid item>
                             <Link href="/signup">
                                 Dont have an account? Sign up
@@ -83,8 +70,8 @@ const Signup = () => {
                         </Grid>
                     </Grid>
                 </Box>
-                { message.length > 0 
-                    ? <Typography variant="h5" component="h5" sx={{mt : 2}}> {message} </Typography>
+                {message.length > 0
+                    ? <Typography variant="h5" component="h5" sx={{ mt: 2 }}> {message} </Typography>
                     : <p> </p>
                 }
             </Box>
